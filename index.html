@@ -68,7 +68,7 @@
     </md-sidenav>
     <div class="main-content">
         <h3>Now playing: {{stream.currentStation.title}}</h3>
-        <twitter-feed height="500" :profile="twitterFeed.profile" :theme="twitterFeed.theme"></twitter-feed>
+        <!--<twitter-feed height="500" :profile="twitterFeed.profile" :theme="twitterFeed.theme"></twitter-feed>-->
     </div>
     <div id="streamCtrl">
         <md-button class="md-icon-button md-raised md-dense" v-on:click="changeVolume(-0.1)"
@@ -95,6 +95,8 @@
     <md-snackbar ref="notification-bar" :md-position="notification.position" :md-duration="notification.duration"><span>{{notification.message}}</span>
     </md-snackbar>
 </div>
+<script src="https://www.gstatic.com/firebasejs/4.1.3/firebase.js"></script>
+<script src="js/cmsg.js"></script>
 <script src="js/coffee.js"></script>
 <script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
 </body>
