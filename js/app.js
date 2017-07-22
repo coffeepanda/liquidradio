@@ -79,9 +79,9 @@ const app = new Vue({
         this.stream.dom.addEventListener("pause", () => {
             this.stream.play = false;
         });
-        this.stream.dom.addEventListener("volumechange", () => {
-            this.stream.volume = this.$refs[this.stream.el].volume;
-        });
+        // this.stream.dom.addEventListener("volumechange", () => {
+        //     this.stream.volume = this.$refs[this.stream.el].volume;
+        // });
         this.stream.dom.addEventListener("stalled", (e) => {
             log.error("Stream stalled", e);
             this.notify("Stream stalled, check your connection.");
@@ -133,7 +133,7 @@ const app = new Vue({
             for (let i = 0; i < this.stream.stations.length; i++) {
                 if (this.stream.stations[i].id === id) {
                     this.stream.currentStation = this.stream.stations[i];
-                    this.stream.play = false;
+                    // this.stream.play = false;
                     // Wait for vue to update src url in audio element before triggering play()
                     Vue.nextTick(() => {
                         this.attachErrorHandler();
@@ -145,6 +145,42 @@ const app = new Vue({
             }
             log.error("Attempted to switch to station with invalid station id", id);
         },
+
+        fadeVolume(mode = false){
+            return new Promise((resolve) => {
+                log.debug("Fading", mode ? "IN" : "OUT");
+
+                let modifier = 0.05;
+                const delay = 50;
+                if(mode) {
+                    this.stream.dom.volume = 0;
+                }
+                else {
+                    modifier *= -1;
+                }
+
+                const loop = () => {
+                    log.debug("current vol", this.stream.dom.volume, "modifier", modifier);
+                    const val = Math.round((this.stream.dom.volume + modifier) * 100) / 100;
+                    if (val >= 1 || val <= 0) {
+                        if (mode) {
+                            this.stream.dom.volume = this.stream.volume;
+                        }
+                        else {
+                            this.stream.dom.volume = 0;
+                        }
+                        resolve();
+                    }
+                    else {
+                        this.stream.dom.volume = val;
+                        setTimeout(loop, delay);
+                    }
+                };
+                loop();
+            })
+        },
+
+
         /**
          * Modify stream volume by modifier value. Bounds of volume are 0 - 1
          * @param value - Positive or negative number that will be added.
@@ -242,12 +278,11 @@ const app = new Vue({
          * @param duration - Duration of visibility.
          */
         notify(message, duration) {
-            const el = this.$refs[this.notification.el];
             if (duration) {
                 this.notification.duration = duration;
             }
             this.notification.message = message;
-            el.open();
+            this.$refs[this.notification.el].open();
         }
     }
 });
